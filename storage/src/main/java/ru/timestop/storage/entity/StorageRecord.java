@@ -1,9 +1,9 @@
 package ru.timestop.storage.entity;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "record")
@@ -16,16 +16,17 @@ import javax.persistence.*;
 })
 public class StorageRecord {
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
     private String user;
     private String name;
     private String extension;
-    private long loadedTime;
+    @Temporal(TemporalType.DATE)
+    private Date loadDate;
+    @Temporal(TemporalType.TIME)
+    private Date loadTime;
     private String tag;
-    @Transient
-    private String downloadLink;
 
     @Override
     public String toString() {
@@ -74,19 +75,19 @@ public class StorageRecord {
         this.tag = tag;
     }
 
-    public long getLoadedTime() {
-        return loadedTime;
+    public Date getLoadDate() {
+        return loadDate;
     }
 
-    public void setLoadedTime(long loadedTime) {
-        this.loadedTime = loadedTime;
+    public void setLoadDate(Date loadDate) {
+        this.loadDate = loadDate;
     }
 
-    public String getDownloadLink() {
-        return downloadLink;
+    public Date getLoadTime() {
+        return loadTime;
     }
 
-    public void setDownloadLink(String downloadLink) {
-        this.downloadLink = downloadLink;
+    public void setLoadTime(Date loadTime) {
+        this.loadTime = loadTime;
     }
 }

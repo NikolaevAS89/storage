@@ -1,14 +1,15 @@
 package ru.timestop.storage.service;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.timestop.storage.StorageRecordRepository;
 import ru.timestop.storage.entity.StorageRecord;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Date;
 import java.util.stream.Stream;
 
 @Component
@@ -18,7 +19,10 @@ public class StorageRecordServiceImpl implements StorageRecordService {
     private EntityManager entityManager;
 
     @Autowired
-    private SessionFactory sessionFactory;
+    private StorageRecordRepository recordRepository;
+
+    @Autowired
+    private StorageService storageService;
 
     @Override
     @Transactional
@@ -26,7 +30,9 @@ public class StorageRecordServiceImpl implements StorageRecordService {
         String origin = file.getOriginalFilename();
         StorageRecord record = new StorageRecord();
         record.setTag(tags);
-        record.setLoadedTime(System.nanoTime());
+        Date now = new Date(System.nanoTime());
+        record.setLoadDate(now);
+        record.setLoadTime(now);
         record.setUser(user);
         if (origin != null && origin.contains(".")) {
             record.setName(origin.substring(0, origin.indexOf(".")));
@@ -36,30 +42,28 @@ public class StorageRecordServiceImpl implements StorageRecordService {
             record.setExtension("");
         }
         entityManager.persist(record);
+        storageService.store(record, file);
         return record;
     }
 
     @Override
     public Stream<StorageRecord> getAll(String user) {
-        return entityManager.createNamedQuery("getAllByUser", StorageRecord.class)
-                .setParameter(1, user)
-                .getResultStream();
+        return recordRepository.findAllByUser(user).stream();
     }
 
     @Override
     public StorageRecord findById(String id) {
-        return entityManager.find(StorageRecord.class, id);
+        return recordRepository.findById(id).get(); // TODO
     }
 
     @Override
-    @Transactional
     public void delete(StorageRecord storageRecord) {
-        entityManager.remove(storageRecord);
+        storageService.delete(storageRecord);
+        recordRepository.delete(storageRecord);
     }
 
     @Override
-    @Transactional
     public void update(StorageRecord storageRecord) {
-        entityManager.merge(storageRecord);
+        recordRepository.save(storageRecord);
     }
 }

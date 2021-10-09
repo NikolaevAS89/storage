@@ -52,11 +52,6 @@ public class FileUploadController {
     @GetMapping("/files")
     public String listFiles(Model model) {
         model.addAttribute("files", storageRecordService.getAll(getUserName())
-                .peek(record -> record.setDownloadLink(MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
-                                "handleDownload", record.getId())
-                        .build()
-                        .toUri()
-                        .toString()))
                 .collect(Collectors.toList()));
         return "files";
     }
@@ -65,6 +60,7 @@ public class FileUploadController {
     @GetMapping("/files/{uuid:.+}")
     @ResponseBody
     public ResponseEntity<Resource> handleDownload(@PathVariable String uuid) {
+        requestCountService.increaseRequestCount(uuid);
         StorageRecord record = storageRecordService.findById(uuid);
         Resource file = storageService.loadAsResource(record);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
@@ -86,8 +82,7 @@ public class FileUploadController {
                                @RequestParam("tags") String tags,
                                RedirectAttributes redirectAttributes) {
 
-        StorageRecord record = storageRecordService.createNew(file, getUserName(), tags);
-        storageService.store(record, file);
+        storageRecordService.createNew(file, getUserName(), tags);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 

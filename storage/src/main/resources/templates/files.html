@@ -34,7 +34,7 @@
 </div>
 
 <div>
-    <form th:action="/files" method="get">
+    <form action="/files" method="get">
         <input type="text" name="File name" value="%"/>
         <input type="text" name="Loaded min" value="%"/>
         <input type="text" name="Loaded max" value="%"/>
@@ -46,6 +46,7 @@
         <tr>
             <th>file</th>
             <th>loaded</th>
+            <th>loaded</th>
             <th>tags</th>
             <th></th>
             <th></th>
@@ -53,25 +54,26 @@
         </tr>
         <tr th:each="file : ${files}">
             <td class="describe" th:text="${file.name}+${file.extension}"></td>
-            <td class="describe" th:text="${file.loadedTime}"></td>
+            <td class="describe" th:text="${file.loadDate}"></td>
+            <td class="describe" th:text="${file.loadTime}"></td>
             <td>
-                <form th:action="'/file/'+${file.id}" method="post">
+                <form th:action="${'/file/'+file.id}" method="post">
                     <input type="text" name="tags" th:value="${file.tag}"/>
                     <input type="submit" name="Update" value="Update"/>
                 </form>
             </td>
             <td class="link">
-                <form th:action="'/files/'+${file.id}" method="get">
+                <form th:action="${'/files/'+file.id}" method="get">
                     <input type="submit" name="Download" value="Download"/>
                 </form>
             </td>
             <td>
-                <form th:action="'/files/'+${file.id}" method="post">
+                <form th:action="${'/files/'+file.id}" method="post">
                     <input type="submit" name="Delete" value="Delete"/>
                 </form>
             </td>
             <td>
-                <form th:action="'/file/'+${file.id}" method="get">
+                <form th:action="${'/file/'+file.id}" method="get">
                     <input type="submit" name="Meta" value="Meta"/>
                 </form>
             </td>

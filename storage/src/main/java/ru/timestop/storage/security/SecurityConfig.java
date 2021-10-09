@@ -17,11 +17,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .regexMatchers("/login", "/index")
                 .permitAll()
-                .anyRequest().authenticated()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
                 .permitAll()
+                .and()
+                .logout().invalidateHttpSession(true)
+                .clearAuthentication(true) .permitAll()
                 .and()
                 .httpBasic();
     }
