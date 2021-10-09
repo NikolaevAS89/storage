@@ -1,0 +1,84 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<header xmlns:th="http://www.w3.org/1999/xhtml">
+    <title>Files</title>
+    <meta charset="utf-8"/>
+</header>
+<body>
+
+<h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Sign Out"/>
+</form>
+
+<div th:if="${message}">
+    <h2 th:text="${message}"/>
+</div>
+
+<div>
+    <form method="POST" enctype="multipart/form-data" action="/files">
+        <table>
+            <tr>
+                <td>File to upload:</td>
+                <td><input type="file" name="file"/></td>
+            </tr>
+            <tr>
+                <td>Tags separated by ",":</td>
+                <td><input type="text" id="tags" name="tags" value=""/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Upload"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div>
+    <form th:action="/files" method="get">
+        <input type="text" name="File name" value="%"/>
+        <input type="text" name="Loaded min" value="%"/>
+        <input type="text" name="Loaded max" value="%"/>
+        <input type="text" name="tags" value="%"/>
+        <input type="submit" name="Search" value="Search"/>
+    </form>
+    <table id="linksTable">
+        <tbody>
+        <tr>
+            <th>file</th>
+            <th>loaded</th>
+            <th>tags</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr th:each="file : ${files}">
+            <td class="describe" th:text="${file.name}+${file.extension}"></td>
+            <td class="describe" th:text="${file.loadedTime}"></td>
+            <td>
+                <form th:action="'/file/'+${file.id}" method="post">
+                    <input type="text" name="tags" th:value="${file.tag}"/>
+                    <input type="submit" name="Update" value="Update"/>
+                </form>
+            </td>
+            <td class="link">
+                <form th:action="'/files/'+${file.id}" method="get">
+                    <input type="submit" name="Download" value="Download"/>
+                </form>
+            </td>
+            <td>
+                <form th:action="'/files/'+${file.id}" method="post">
+                    <input type="submit" name="Delete" value="Delete"/>
+                </form>
+            </td>
+            <td>
+                <form th:action="'/file/'+${file.id}" method="get">
+                    <input type="submit" name="Meta" value="Meta"/>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

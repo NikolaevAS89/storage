@@ -1,0 +1,32 @@
+FROM maven:3.5.4-jdk-8-alpine as maven
+
+COPY ./pom.xml ./pom.xml
+
+COPY ./storage ./storage
+
+RUN mvn dependency:go-offline -B
+
+RUN apt-get update
+RUN apt-get install -y wget
+RUN apt install -y unzip
+
+RUN wget -O /hsqldb-2.6.0.zip "https://sourceforge.net/projects/hsqldb/files/hsqldb/hsqldb_2_6/hsqldb-2.6.0.zip/download"
+RUN unzip -q /hsqldb-2.6.0.zip
+
+ENV HSQLDB_HOME hsqldb-2.6.0\hsqldb
+
+RUN mvn package
+
+FROM openjdk:8u171-jre-alpine
+
+WORKDIR /application
+
+COPY --from=maven storage/target/storage-*.jar ./storage.jar
+
+WORKDIR $HSQLDB_HOME
+
+RUN java -classpath $HSQLDB_HOME/lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:hsqldb/storage --dbname.0 storage
+
+WORKDIR /application
+
+CMD ["java", "-jar", "./storage.jar"]
